@@ -3,9 +3,9 @@ using LibraryAPI.Models;
 namespace LibraryAPI.Repositories;
 
 public interface IMemberRepository {
-    Member? GetById(Guid id);
-    Member Add(Member mb);
-    IEnumerable<Member> GetAll();
-    Member Update(Member mb);
-    Member Delete(Member mb);
+    Task<Member?> GetByIdAsync(Guid id);
+    Task<Member> AddAsync(Member mb);
+    Task<IEnumerable<Member>> GetAllAsync();
+    Task<Member> UpdateAsync(Member mb);
+    Task<bool> DeleteAsync(Guid id);
 }

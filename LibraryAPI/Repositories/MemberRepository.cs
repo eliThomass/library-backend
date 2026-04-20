@@ -11,25 +11,32 @@ public class MemberRepository : IMemberRepository {
         _context = context;
     }
 
-    public IEnumerable<Mumber> Get() {
-        return _context.Members.AsNoTracking().ToList();
+    public async Task<IEnumerable<Member>> GetAllAsync() {
+        return await _context.Members.AsNoTracking().ToListAsync();
     }
 
-    public Member? GetById(Guid id) {
-        return _context.Members.AsNoTracking().FirstOrDefault(e => e.Id == id);
-    }
-    
-    public Member Add(Member mb) {
-        _context.Members.Add(mb);
-        _context.SaveChanges();
-        return ev;
+    public async Task<Member?> GetByIdAsync(Guid id) {
+        return await _context.Members.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
     }
 
-    public Member Update(Member mb) {
-        
+    public async Task<Member> AddAsync(Member mb) {
+        await _context.Members.AddAsync(mb);
+        await _context.SaveChangesAsync();
+        return mb;
     }
 
-    public Member Delete(Member mb) {
+    public async Task<Member> UpdateAsync(Member mb) {
+        _context.Members.Update(mb);
+        await _context.SaveChangesAsync();
+        return mb;
+    }
 
+    public async Task<bool> DeleteAsync(Guid id) {
+        var mb = await _context.Members.FindAsync(id);
+        if (mb == null) return false;
+
+        _context.Members.Remove(mb);
+        await _context.SaveChangesAsync();
+        return true;
     }
 }
