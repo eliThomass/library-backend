@@ -48,3 +48,9 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseInMemoryDatabase("LibraryDb"));
+
+builder.Services.AddScoped<IBookRepository, BookRepository>();
+builder.Services.AddScoped<IBookService, BookService>();
