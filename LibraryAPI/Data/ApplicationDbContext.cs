@@ -12,26 +12,21 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<Member> Members => Set<Member>();
     public DbSet<Book> Books => Set<Book>();
-
-    /* Add DbSet for Borrow above & probably need to replace Registration with Borrow below
+    public DbSet<BorrowRecord> BorrowRecords => Set<BorrowRecord>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Registration>(entity =>
+        modelBuilder.Entity<BorrowRecord>(entity =>
         {
-            entity.HasOne(r => r.Event)
-                .WithMany(e => e.Registrations)
-                .HasForeignKey(r => r.EventId)
-                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(r => r.Book)
+                .WithMany()
+                .HasForeignKey(r => r.BookId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne(r => r.User)
-                .WithMany(u => u.Registrations)
-                .HasForeignKey(r => r.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasIndex(r => new { r.EventId, r.UserId })
-                .IsUnique();
+            entity.HasOne(r => r.Member)
+                .WithMany()
+                .HasForeignKey(r => r.MemberId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
-    */
 }
 

@@ -43,7 +43,7 @@ namespace LibraryAPI.Controllers
             return Ok(books);
         }
 
-    
+
         [HttpGet("{id}")]
         public IActionResult GetBookById(int id)
         {
@@ -70,7 +70,7 @@ namespace LibraryAPI.Controllers
             newBook.Id = _books.Max(b => b.Id) + 1;
             _books.Add(newBook);
 
-        
+
             _cache.Remove(AllBooksCacheKey);
 
             return Ok(newBook);
@@ -88,14 +88,14 @@ namespace LibraryAPI.Controllers
             existing.Title = updatedBook.Title;
             existing.Author = updatedBook.Author;
 
-        
+
             _cache.Remove(AllBooksCacheKey);
             _cache.Remove(BookCacheKey(id));
 
             return Ok(existing);
         }
 
-     
+
         [HttpDelete("{id}")]
         public IActionResult DeleteBook(int id)
         {
@@ -106,7 +106,7 @@ namespace LibraryAPI.Controllers
 
             _books.Remove(book);
 
-         
+
             _cache.Remove(AllBooksCacheKey);
             _cache.Remove(BookCacheKey(id));
 
@@ -114,10 +114,4 @@ namespace LibraryAPI.Controllers
         }
     }
 
-    public class Book
-    {
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public string Author { get; set; }
-    }
 }
