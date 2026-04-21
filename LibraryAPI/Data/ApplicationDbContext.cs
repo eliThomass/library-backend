@@ -30,4 +30,15 @@ public class AppDbContext : DbContext
                 .IsUnique();
         });
     }
+    
+    public DbSet<Book> Books { get; set; }
+
+    public AppDbContext(DbContextOptions<AppDbContext> options)
+        : base(options)
+    {
+    }
 }
+
+
+
+  
