@@ -25,9 +25,7 @@ public class BookService : IBookService
         var book = await _bookRepository.GetByIdAsync(id);
 
         if (book is null)
-        {
             throw new KeyNotFoundException("Book not found.");
-        }
 
         return MapToResponseDto(book);
     }
@@ -38,9 +36,7 @@ public class BookService : IBookService
 
         var existingBook = await _bookRepository.GetByIsbnAsync(dto.ISBN.Trim());
         if (existingBook is not null)
-        {
             throw new InvalidOperationException("A book with this ISBN already exists.");
-        }
 
         var book = new Book
         {
@@ -62,15 +58,11 @@ public class BookService : IBookService
 
         var existingBook = await _bookRepository.GetByIdAsync(id);
         if (existingBook is null)
-        {
             throw new KeyNotFoundException("Book not found.");
-        }
 
         var isbnOwner = await _bookRepository.GetByIsbnAsync(dto.ISBN.Trim());
         if (isbnOwner is not null && isbnOwner.Id != id)
-        {
             throw new InvalidOperationException("A book with this ISBN already exists.");
-        }
 
         existingBook.Title = dto.Title.Trim();
         existingBook.Author = dto.Author.Trim();
@@ -87,13 +79,12 @@ public class BookService : IBookService
     {
         var existingBook = await _bookRepository.GetByIdAsync(id);
         if (existingBook is null)
-        {
             throw new KeyNotFoundException("Book not found.");
-        }
 
         await _bookRepository.DeleteAsync(existingBook);
     }
 
+    
     private static void ValidateBookData(
         string title,
         string author,
@@ -102,36 +93,25 @@ public class BookService : IBookService
         int availableCopies)
     {
         if (string.IsNullOrWhiteSpace(title))
-        {
             throw new ArgumentException("Title is required.");
-        }
 
         if (string.IsNullOrWhiteSpace(author))
-        {
             throw new ArgumentException("Author is required.");
-        }
 
         if (string.IsNullOrWhiteSpace(isbn))
-        {
             throw new ArgumentException("ISBN is required.");
-        }
 
         if (totalCopies <= 0)
-        {
             throw new ArgumentException("TotalCopies must be greater than 0.");
-        }
 
         if (availableCopies < 0)
-        {
-            throw new ArgumentException("AvailableCopies must be greater than or equal to 0.");
-        }
+            throw new ArgumentException("AvailableCopies must be >= 0.");
 
         if (availableCopies > totalCopies)
-        {
-            throw new ArgumentException("AvailableCopies must not exceed TotalCopies.");
-        }
+            throw new ArgumentException("AvailableCopies cannot exceed TotalCopies.");
     }
 
+    
     private static BookResponseDto MapToResponseDto(Book book)
     {
         return new BookResponseDto
