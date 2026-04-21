@@ -1,37 +1,33 @@
-using LibraryAPI.Models;
+using LibraryBookBorrowingSystem.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace LibraryAPI.Data;
+namespace LibraryBookBorrowingSystem.Data;
 
-public class ApplicationDbContext : DbContext
+public class AppDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options)
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
 
-    public DbSet<Member> Members => Set<Member>();
     public DbSet<Book> Books => Set<Book>();
 
-    /* Add DbSet for Borrow above & probably need to replace Registration with Borrow below
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Registration>(entity =>
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Book>(entity =>
         {
-            entity.HasOne(r => r.Event)
-                .WithMany(e => e.Registrations)
-                .HasForeignKey(r => r.EventId)
-                .OnDelete(DeleteBehavior.Cascade);
+            entity.Property(b => b.Title)
+                .IsRequired();
 
-            entity.HasOne(r => r.User)
-                .WithMany(u => u.Registrations)
-                .HasForeignKey(r => r.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+            entity.Property(b => b.Author)
+                .IsRequired();
 
-            entity.HasIndex(r => new { r.EventId, r.UserId })
+            entity.Property(b => b.ISBN)
+                .IsRequired();
+
+            entity.HasIndex(b => b.ISBN)
                 .IsUnique();
         });
     }
-    */
 }
-
