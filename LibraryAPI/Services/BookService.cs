@@ -17,7 +17,7 @@ public class BookService : IBookService
     public async Task<List<BookResponseDto>> GetAllAsync()
     {
         var books = await _bookRepository.GetAllAsync();
-        return books.Select(MapToResponseDto).ToList();
+        return books.Select(MapToResponseDto).ToList();  //ToListAsyn()
     }
 
     public async Task<BookResponseDto> GetByIdAsync(int id)
