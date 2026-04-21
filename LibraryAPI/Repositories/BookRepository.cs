@@ -19,7 +19,7 @@ public class BookRepository : IBookRepository
         return await _context.Books
             .AsNoTracking()
             .OrderBy(b => b.Id)
-            .ToListAsync();
+            .ToListAsync();  //Async Programming 
     }
 
     public async Task<Book?> GetByIdAsync(int id)
