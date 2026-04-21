@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using LibraryAPI.Data; 
+using LibraryAPI.Data;
 using LibraryAPI.Repositories;
 using LibraryAPI.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddMemoryCache();
 
 // SQLITE SETUP
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -18,9 +20,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Register Repositories
 builder.Services.AddScoped<IMemberRepository, MemberRepository>();
+builder.Services.AddScoped<IBookRepository, BookRepository>();
+builder.Services.AddScoped<IBorrowRepository, BorrowRepository>();
 
 // Register Services
 builder.Services.AddScoped<IMemberService, MemberService>();
+builder.Services.AddScoped<IBorrowService, BorrowService>();
 
 var app = builder.Build();
 

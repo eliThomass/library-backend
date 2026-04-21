@@ -36,10 +36,16 @@ public class BooksController : ControllerBase
         }
     }
 
+<<<<<<< borrowing-api
+
+        [HttpGet("{id}")]
+        public IActionResult GetBookById(int id)
+=======
     [HttpPost]
     public async Task<ActionResult<BookResponseDto>> Create([FromBody] CreateBookRequestDto dto)
     {
         if (!ModelState.IsValid)
+>>>>>>> main
         {
             return BadRequest(new { error = "Invalid request data." });
         }
@@ -51,14 +57,56 @@ public class BooksController : ControllerBase
         }
         catch (ArgumentException ex)
         {
+<<<<<<< borrowing-api
+            newBook.Id = _books.Max(b => b.Id) + 1;
+            _books.Add(newBook);
+
+
+            _cache.Remove(AllBooksCacheKey);
+
+            return Ok(newBook);
+=======
             return BadRequest(new { error = ex.Message });
+>>>>>>> main
         }
         catch (InvalidOperationException ex)
         {
+<<<<<<< borrowing-api
+            var existing = _books.FirstOrDefault(b => b.Id == id);
+
+            if (existing == null)
+                return NotFound();
+
+            existing.Title = updatedBook.Title;
+            existing.Author = updatedBook.Author;
+
+
+            _cache.Remove(AllBooksCacheKey);
+            _cache.Remove(BookCacheKey(id));
+
+            return Ok(existing);
+=======
             return Conflict(new { error = ex.Message });
+>>>>>>> main
         }
     }
 
+<<<<<<< borrowing-api
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteBook(int id)
+        {
+            var book = _books.FirstOrDefault(b => b.Id == id);
+
+            if (book == null)
+                return NotFound();
+
+            _books.Remove(book);
+
+
+            _cache.Remove(AllBooksCacheKey);
+            _cache.Remove(BookCacheKey(id));
+=======
     [HttpPut("{id:int}")]
     public async Task<ActionResult<BookResponseDto>> Update(int id, [FromBody] UpdateBookRequestDto dto)
     {
@@ -66,6 +114,7 @@ public class BooksController : ControllerBase
         {
             return BadRequest(new { error = "Invalid request data." });
         }
+>>>>>>> main
 
         try
         {
@@ -86,6 +135,8 @@ public class BooksController : ControllerBase
         }
     }
 
+<<<<<<< borrowing-api
+=======
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -99,4 +150,5 @@ public class BooksController : ControllerBase
             return NotFound(new { error = ex.Message });
         }
     }
+>>>>>>> main
 }

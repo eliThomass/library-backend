@@ -1,10 +1,22 @@
+<<<<<<< borrowing-api
+namespace LibraryAPI.Models;
+=======
 using System.ComponentModel.DataAnnotations;
 
 namespace LibraryBookBorrowingSystem.Models;
+>>>>>>> main
 
 public class Book
 {
     public int Id { get; set; }
+<<<<<<< borrowing-api
+    public string Title { get; set; } = string.Empty;
+    public string Author { get; set; } = string.Empty;
+    public string ISBN { get; set; } = string.Empty;
+    public int TotalCopies { get; set; }
+    public int AvailableCopies { get; set; }
+}
+=======
 
     [Required]
     public string Title { get; set; } = string.Empty;
@@ -19,3 +31,4 @@ public class Book
 
     public int AvailableCopies { get; set; }
 }
+>>>>>>> main

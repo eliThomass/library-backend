@@ -1,14 +1,14 @@
-namespace LibraryAPI.Models;
+using LibraryAPI.Models;
 
-public enum BorrowStatus { Borrowed, Returned }
+namespace LibraryAPI.DTOs;
 
-public class BorrowRecord
+public class BorrowResponseDto
 {
     public int Id { get; set; }
     public int BookId { get; set; }
-    public Book Book { get; set; } = null!;
+    public string BookTitle { get; set; } = string.Empty;
     public Guid MemberId { get; set; }
-    public Member Member { get; set; } = null!;
+    public string MemberName { get; set; } = string.Empty;
     public DateTime BorrowDate { get; set; }
     public DateTime? ReturnDate { get; set; }
     public BorrowStatus Status { get; set; }
