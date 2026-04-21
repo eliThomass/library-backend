@@ -1,17 +1,16 @@
-using LibraryAPI.Models;
+using LibraryBookBorrowingSystem.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace LibraryAPI.Data;
+namespace LibraryBookBorrowingSystem.Data;
 
-public class ApplicationDbContext : DbContext
+public class AppDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options)
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
 
-    public DbSet<Member> Members => Set<Member>();
     public DbSet<Book> Books => Set<Book>();
+<<<<<<< borrowing-api
     public DbSet<BorrowRecord> BorrowRecords => Set<BorrowRecord>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -28,5 +27,37 @@ public class ApplicationDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }
+=======
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Book>(entity =>
+        {
+            entity.Property(b => b.Title)
+                .IsRequired();
+
+            entity.Property(b => b.Author)
+                .IsRequired();
+
+            entity.Property(b => b.ISBN)
+                .IsRequired();
+
+            entity.HasIndex(b => b.ISBN)
+                .IsUnique();
+        });
+    }
+    
+    public DbSet<Book> Books { get; set; }
+
+    public AppDbContext(DbContextOptions<AppDbContext> options)
+        : base(options)
+    {
+    }
+>>>>>>> main
 }
 
+
+
+  

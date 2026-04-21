@@ -32,7 +32,7 @@ public class MemberRepository : IMemberRepository {
     }
 
     public async Task<bool> DeleteAsync(Guid id) {
-        var mb = await _context.Members.FindAsync(id);
+        var mb = await _context.Members.FindAsync(id); //FinAsync()
         if (mb == null) return false;
 
         _context.Members.Remove(mb);
