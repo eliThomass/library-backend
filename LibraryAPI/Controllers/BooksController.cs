@@ -1,123 +1,102 @@
-// BooksController.cs
-
-
+using LibraryBookBorrowingSystem.DTOs.Books;
+using LibraryBookBorrowingSystem.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using LibraryAPI.Models;
 
-namespace LibraryAPI.Controllers
+namespace LibraryBookBorrowingSystem.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class BooksController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class BooksController : ControllerBase
+    private readonly IBookService _bookService;
+
+    public BooksController(IBookService bookService)
     {
-        private readonly IMemoryCache _cache;
+        _bookService = bookService;
+    }
 
-        private static List<Book> _books = new List<Book>
+    [HttpGet]
+    public async Task<ActionResult<List<BookResponseDto>>> GetAll()
+    {
+        var books = await _bookService.GetAllAsync();
+        return Ok(books);
+    }
+
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<BookResponseDto>> GetById(int id)
+    {
+        try
         {
-            new Book { Id = 1, Title = "Clean Code", Author = "Robert C. Martin" },
-            new Book { Id = 2, Title = "The Pragmatic Programmer", Author = "Andrew Hunt" }
-        };
-
-        private const string AllBooksCacheKey = "all_books";
-
-        private string BookCacheKey(int id) => $"book_{id}";
-
-        public BooksController(IMemoryCache cache)
-        {
-            _cache = cache;
-        }
-        [HttpGet]
-        public IActionResult GetAllBooks()
-        {
-            if (!_cache.TryGetValue(AllBooksCacheKey, out List<Book> books))
-            {
-                books = _books;
-
-                var cacheOptions = new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromMinutes(5));
-
-                _cache.Set(AllBooksCacheKey, books, cacheOptions);
-            }
-
-            return Ok(books);
-        }
-
-    
-        [HttpGet("{id}")]
-        public IActionResult GetBookById(int id)
-        {
-            string key = BookCacheKey(id);
-
-            if (!_cache.TryGetValue(key, out Book book))
-            {
-                book = _books.FirstOrDefault(b => b.Id == id);
-
-                if (book == null)
-                    return NotFound();
-
-                var cacheOptions = new MemoryCacheEntryOptions()
-                    .SetSlidingExpiration(TimeSpan.FromMinutes(5));
-
-                _cache.Set(key, book, cacheOptions);
-            }
-
+            var book = await _bookService.GetByIdAsync(id);
             return Ok(book);
         }
-        [HttpPost]
-        public IActionResult CreateBook(Book newBook)
+        catch (KeyNotFoundException ex)
         {
-            newBook.Id = _books.Max(b => b.Id) + 1;
-            _books.Add(newBook);
-
-        
-            _cache.Remove(AllBooksCacheKey);
-
-            return Ok(newBook);
-        }
-
-
-        [HttpPut("{id}")]
-        public IActionResult UpdateBook(int id, Book updatedBook)
-        {
-            var existing = _books.FirstOrDefault(b => b.Id == id);
-
-            if (existing == null)
-                return NotFound();
-
-            existing.Title = updatedBook.Title;
-            existing.Author = updatedBook.Author;
-
-        
-            _cache.Remove(AllBooksCacheKey);
-            _cache.Remove(BookCacheKey(id));
-
-            return Ok(existing);
-        }
-
-     
-        [HttpDelete("{id}")]
-        public IActionResult DeleteBook(int id)
-        {
-            var book = _books.FirstOrDefault(b => b.Id == id);
-
-            if (book == null)
-                return NotFound();
-
-            _books.Remove(book);
-
-         
-            _cache.Remove(AllBooksCacheKey);
-            _cache.Remove(BookCacheKey(id));
-
-            return Ok("Book deleted");
+            return NotFound(new { error = ex.Message });
         }
     }
 
-    public class Book
+    [HttpPost]
+    public async Task<ActionResult<BookResponseDto>> Create([FromBody] CreateBookRequestDto dto)
     {
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public string Author { get; set; }
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new { error = "Invalid request data." });
+        }
+
+        try
+        {
+            var createdBook = await _bookService.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = createdBook.Id }, createdBook);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
+    }
+
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult<BookResponseDto>> Update(int id, [FromBody] UpdateBookRequestDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new { error = "Invalid request data." });
+        }
+
+        try
+        {
+            var updatedBook = await _bookService.UpdateAsync(id, dto);
+            return Ok(updatedBook);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
+    }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            await _bookService.DeleteAsync(id);
+            return Ok(new { message = "Book deleted successfully." });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
     }
 }
