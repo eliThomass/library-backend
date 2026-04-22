@@ -44,6 +44,7 @@ public class BooksController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<BookResponseDto>> Create([FromBody] CreateBookRequestDto dto)
     {
+        // level 1: Controller validation
         if (!ModelState.IsValid)
 >>>>>>> main
         {
@@ -65,7 +66,7 @@ public class BooksController : ControllerBase
             _cache.Remove(AllBooksCacheKey);
 
             return Ok(newBook);
-=======
+=======     // Level 2: service validation
             return BadRequest(new { error = ex.Message });
 >>>>>>> main
         }
@@ -85,7 +86,7 @@ public class BooksController : ControllerBase
             _cache.Remove(BookCacheKey(id));
 
             return Ok(existing);
-=======
+=======      // Level 3 Database/Logic conflicts
             return Conflict(new { error = ex.Message });
 >>>>>>> main
         }
