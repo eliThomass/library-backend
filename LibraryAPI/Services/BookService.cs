@@ -1,7 +1,6 @@
 using LibraryAPI.DTOs;
 using LibraryAPI.Models;
 using LibraryAPI.Repositories;
-using LibraryAPI.Services;
 
 namespace LibraryAPI.Services;
 
@@ -17,7 +16,7 @@ public class BookService : IBookService
     public async Task<List<BookResponseDto>> GetAllAsync()
     {
         var books = await _bookRepository.GetAllAsync();
-        return books.Select(MapToResponseDto).ToList();  //ToListAsyn()
+        return books.Select(MapToResponseDto).ToList(); 
     }
 
     public async Task<BookResponseDto> GetByIdAsync(int id)
@@ -34,7 +33,9 @@ public class BookService : IBookService
     {
         ValidateBookData(dto.Title, dto.Author, dto.ISBN, dto.TotalCopies, dto.AvailableCopies);
 
-        var existingBook = await _bookRepository.GetByIsbnAsync(dto.ISBN.Trim());
+        var allBooks = await _bookRepository.GetAllAsync();
+        var existingBook = allBooks.FirstOrDefault(b => b.ISBN == dto.ISBN.Trim());
+        
         if (existingBook is not null)
             throw new InvalidOperationException("A book with this ISBN already exists.");
 
@@ -60,7 +61,9 @@ public class BookService : IBookService
         if (existingBook is null)
             throw new KeyNotFoundException("Book not found.");
 
-        var isbnOwner = await _bookRepository.GetByIsbnAsync(dto.ISBN.Trim());
+        var allBooks = await _bookRepository.GetAllAsync();
+        var isbnOwner = allBooks.FirstOrDefault(b => b.ISBN == dto.ISBN.Trim());
+
         if (isbnOwner is not null && isbnOwner.Id != id)
             throw new InvalidOperationException("A book with this ISBN already exists.");
 
@@ -77,20 +80,13 @@ public class BookService : IBookService
 
     public async Task DeleteAsync(int id)
     {
-        var existingBook = await _bookRepository.GetByIdAsync(id);
-        if (existingBook is null)
+        var deleted = await _bookRepository.DeleteAsync(id);
+        
+        if (!deleted)
             throw new KeyNotFoundException("Book not found.");
-
-        await _bookRepository.DeleteAsync(existingBook);
     }
 
-    
-    private static void ValidateBookData(
-        string title,
-        string author,
-        string isbn,
-        int totalCopies,
-        int availableCopies)
+    private static void ValidateBookData(string title, string author, string isbn, int totalCopies, int availableCopies)
     {
         if (string.IsNullOrWhiteSpace(title))
             throw new ArgumentException("Title is required.");
@@ -111,7 +107,6 @@ public class BookService : IBookService
             throw new ArgumentException("AvailableCopies cannot exceed TotalCopies.");
     }
 
-    
     private static BookResponseDto MapToResponseDto(Book book)
     {
         return new BookResponseDto

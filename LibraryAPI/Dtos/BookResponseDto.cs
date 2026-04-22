@@ -1,4 +1,4 @@
-namespace LibraryAPI.Dtos;
+namespace LibraryAPI.DTOs;
 
 public class BookResponseDto
 {
