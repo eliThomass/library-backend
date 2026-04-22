@@ -2,7 +2,7 @@ using LibraryAPI.DTOs;
 using LibraryAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LibraryBookBorrowingSystem.Controllers;
+namespace LibraryAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -15,6 +15,7 @@ public class BooksController : ControllerBase
         _bookService = bookService;
     }
 
+    // GET: api/books
     [HttpGet]
     public async Task<ActionResult<List<BookResponseDto>>> GetAll()
     {
@@ -22,6 +23,7 @@ public class BooksController : ControllerBase
         return Ok(books);
     }
 
+    // GET: api/books/{id}
     [HttpGet("{id:int}")]
     public async Task<ActionResult<BookResponseDto>> GetById(int id)
     {
@@ -36,17 +38,12 @@ public class BooksController : ControllerBase
         }
     }
 
-<<<<<<< borrowing-api
-
-        [HttpGet("{id}")]
-        public IActionResult GetBookById(int id)
-=======
+    // POST: api/books
     [HttpPost]
     public async Task<ActionResult<BookResponseDto>> Create([FromBody] CreateBookRequestDto dto)
     {
-        // level 1: Controller validation
+        // Level 1: Controller validation
         if (!ModelState.IsValid)
->>>>>>> main
         {
             return BadRequest(new { error = "Invalid request data." });
         }
@@ -58,56 +55,17 @@ public class BooksController : ControllerBase
         }
         catch (ArgumentException ex)
         {
-<<<<<<< borrowing-api
-            newBook.Id = _books.Max(b => b.Id) + 1;
-            _books.Add(newBook);
-
-
-            _cache.Remove(AllBooksCacheKey);
-
-            return Ok(newBook);
-=======     // Level 2: service validation
+            // Level 2: Service/Business logic validation
             return BadRequest(new { error = ex.Message });
->>>>>>> main
         }
         catch (InvalidOperationException ex)
         {
-<<<<<<< borrowing-api
-            var existing = _books.FirstOrDefault(b => b.Id == id);
-
-            if (existing == null)
-                return NotFound();
-
-            existing.Title = updatedBook.Title;
-            existing.Author = updatedBook.Author;
-
-
-            _cache.Remove(AllBooksCacheKey);
-            _cache.Remove(BookCacheKey(id));
-
-            return Ok(existing);
-=======      // Level 3 Database/Logic conflicts
+            // Level 3: Database/Concurrency conflicts
             return Conflict(new { error = ex.Message });
->>>>>>> main
         }
     }
 
-<<<<<<< borrowing-api
-
-        [HttpDelete("{id}")]
-        public IActionResult DeleteBook(int id)
-        {
-            var book = _books.FirstOrDefault(b => b.Id == id);
-
-            if (book == null)
-                return NotFound();
-
-            _books.Remove(book);
-
-
-            _cache.Remove(AllBooksCacheKey);
-            _cache.Remove(BookCacheKey(id));
-=======
+    // PUT: api/books/{id}
     [HttpPut("{id:int}")]
     public async Task<ActionResult<BookResponseDto>> Update(int id, [FromBody] UpdateBookRequestDto dto)
     {
@@ -115,7 +73,6 @@ public class BooksController : ControllerBase
         {
             return BadRequest(new { error = "Invalid request data." });
         }
->>>>>>> main
 
         try
         {
@@ -136,8 +93,7 @@ public class BooksController : ControllerBase
         }
     }
 
-<<<<<<< borrowing-api
-=======
+    // DELETE: api/books/{id}
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -151,5 +107,4 @@ public class BooksController : ControllerBase
             return NotFound(new { error = ex.Message });
         }
     }
->>>>>>> main
 }
