@@ -1,5 +1,5 @@
-using LibraryBookBorrowingSystem.DTOs.Books;
-using LibraryBookBorrowingSystem.Services.Interfaces;
+using LibraryAPI.DTOs;
+using LibraryAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryBookBorrowingSystem.Controllers;

@@ -1,6 +1,6 @@
-using LibraryBookBorrowingSystem.DTOs.Books;
+using LibraryAPI.DTOs;
 
-namespace LibraryBookBorrowingSystem.Services.Interfaces;
+namespace LibraryAPI.Services;
 
 public interface IBookService
 {

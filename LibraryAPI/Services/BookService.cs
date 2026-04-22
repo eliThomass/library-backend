@@ -1,9 +1,9 @@
-using LibraryBookBorrowingSystem.DTOs.Books;
-using LibraryBookBorrowingSystem.Models;
-using LibraryBookBorrowingSystem.Repositories.Interfaces;
-using LibraryBookBorrowingSystem.Services.Interfaces;
+using LibraryAPI.DTOs;
+using LibraryAPI.Models;
+using LibraryAPI.Repositories;
+using LibraryAPI.Services;
 
-namespace LibraryBookBorrowingSystem.Services;
+namespace LibraryAPI.Services;
 
 public class BookService : IBookService
 {
