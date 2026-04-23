@@ -46,10 +46,19 @@ public class MembersController : ControllerBase {
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteMember(Guid id) {
-        var deleted = await _memberService.DeleteMemberAsync(id);
-        if (!deleted) {
-            return NotFound(new { error = $"Member with ID {id} not found." }); // 404 Not Found
+        try 
+        {
+            var deleted = await _memberService.DeleteMemberAsync(id);
+            if (!deleted) 
+            {
+                return NotFound(new { error = $"Member with ID {id} not found." }); // 404
+            }
+            return Ok(new { message = "Member deleted successfully." }); // 200
         }
-        return Ok(new { message = "Member deleted successfully." }); // 200 OK
+        catch (InvalidOperationException ex)
+        {
+            // Catches the foreign key violation and returns a 409
+            return Conflict(new { error = ex.Message }); 
+        }
     }
 }

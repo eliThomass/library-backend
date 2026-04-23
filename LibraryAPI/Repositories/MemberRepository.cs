@@ -35,8 +35,12 @@ public class MemberRepository : IMemberRepository {
         var mb = await _context.Members.FindAsync(id); //FinAsync()
         if (mb == null) return false;
 
-        _context.Members.Remove(mb);
-        await _context.SaveChangesAsync();
-        return true;
+        try {
+            await _context.SaveChangesAsync();
+            return true;
+        } catch (DbUpdateException) {
+            // Catch the DB foreign key error 
+            throw new InvalidOperationException("Cannot delete this member because they have associated borrow records.");
+        }
     }
 }

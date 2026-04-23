@@ -106,5 +106,9 @@ public class BooksController : ControllerBase
         {
             return NotFound(new { error = ex.Message });
         }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
     }
 }

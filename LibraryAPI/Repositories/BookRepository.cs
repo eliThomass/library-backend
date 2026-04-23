@@ -42,7 +42,12 @@ public class BookRepository : IBookRepository
         var book = await _context.Books.FindAsync(id);
         if (book == null) return false;
         _context.Books.Remove(book);
-        await _context.SaveChangesAsync();
-        return true;
+        try {
+            await _context.SaveChangesAsync();
+            return true;
+        } catch (DbUpdateException) {
+            // Catch the DB foreign key error
+            throw new InvalidOperationException("Cannot delete this book because it has associated borrow records.");
+        }
     }
 }
