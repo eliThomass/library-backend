@@ -41,13 +41,24 @@ public class BookRepository : IBookRepository
     {
         var book = await _context.Books.FindAsync(id);
         if (book == null) return false;
-        _context.Books.Remove(book);
-        try {
-            await _context.SaveChangesAsync();
-            return true;
-        } catch (DbUpdateException) {
-            // Catch the DB foreign key error
-            throw new InvalidOperationException("Cannot delete this book because it has associated borrow records.");
+
+        bool isCurrentlyBorrowed = await _context.BorrowRecords
+            .AnyAsync(r => r.BookId == id && r.Status == BorrowStatus.Borrowed);
+
+        if (isCurrentlyBorrowed)
+        {
+            throw new InvalidOperationException("Cannot delete this book because it is currently checked out by a member.");
         }
+
+        var historicalRecords = await _context.BorrowRecords
+            .Where(r => r.BookId == id)
+            .ToListAsync();
+
+        _context.BorrowRecords.RemoveRange(historicalRecords);
+
+        _context.Books.Remove(book);
+        await _context.SaveChangesAsync();
+        
+        return true;
     }
 }

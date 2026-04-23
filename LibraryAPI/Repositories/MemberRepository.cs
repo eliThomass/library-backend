@@ -35,12 +35,24 @@ public class MemberRepository : IMemberRepository {
         var mb = await _context.Members.FindAsync(id); //FinAsync()
         if (mb == null) return false;
 
-        try {
-            await _context.SaveChangesAsync();
-            return true;
-        } catch (DbUpdateException) {
-            // Catch the DB foreign key error 
-            throw new InvalidOperationException("Cannot delete this member because they have associated borrow records.");
+        // Check for active borrows
+        bool hasActiveBorrows = await _context.BorrowRecords
+            .AnyAsync(r => r.MemberId == id && r.Status == BorrowStatus.Borrowed);
+
+        if (hasActiveBorrows)
+        {
+            throw new InvalidOperationException("Cannot delete this member because they currently have unreturned books.");
         }
+
+       var historicalRecords = await _context.BorrowRecords
+            .Where(r => r.MemberId == id)
+            .ToListAsync();
+            
+        _context.BorrowRecords.RemoveRange(historicalRecords);
+
+        // Now we can delete, after removing borrow records
+        _context.Members.Remove(mb);
+        await _context.SaveChangesAsync();
+        return true;
     }
 }
