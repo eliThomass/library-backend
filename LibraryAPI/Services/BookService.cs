@@ -1,22 +1,38 @@
 using LibraryAPI.DTOs;
 using LibraryAPI.Models;
 using LibraryAPI.Repositories;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace LibraryAPI.Services;
 
 public class BookService : IBookService
 {
     private readonly IBookRepository _bookRepository;
+    private readonly IMemoryCache _cache;
 
-    public BookService(IBookRepository bookRepository)
+    private const string BooksCacheKey = "books_list";
+
+    public BookService(IBookRepository bookRepository, IMemoryCache cache)
     {
         _bookRepository = bookRepository;
+        _cache = cache;
     }
 
     public async Task<List<BookResponseDto>> GetAllAsync()
     {
-        var books = await _bookRepository.GetAllAsync();
-        return books.Select(MapToResponseDto).ToList(); 
+        if (!_cache.TryGetValue(BooksCacheKey, out List<BookResponseDto> cachedBooks))
+        {
+            var books = await _bookRepository.GetAllAsync();
+
+            cachedBooks = books.Select(MapToResponseDto).ToList();
+
+            var cacheOptions = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(5));
+
+            _cache.Set(BooksCacheKey, cachedBooks, cacheOptions);
+        }
+
+        return cachedBooks;
     }
 
     public async Task<BookResponseDto> GetByIdAsync(int id)
@@ -35,7 +51,7 @@ public class BookService : IBookService
 
         var allBooks = await _bookRepository.GetAllAsync();
         var existingBook = allBooks.FirstOrDefault(b => b.ISBN == dto.ISBN.Trim());
-        
+
         if (existingBook is not null)
             throw new InvalidOperationException("A book with this ISBN already exists.");
 
@@ -49,6 +65,9 @@ public class BookService : IBookService
         };
 
         await _bookRepository.AddAsync(book);
+
+        // 🔥 Invalidate cache
+        _cache.Remove(BooksCacheKey);
 
         return MapToResponseDto(book);
     }
@@ -75,15 +94,21 @@ public class BookService : IBookService
 
         await _bookRepository.UpdateAsync(existingBook);
 
+        // 🔥 Invalidate cache
+        _cache.Remove(BooksCacheKey);
+
         return MapToResponseDto(existingBook);
     }
 
     public async Task DeleteAsync(int id)
     {
         var deleted = await _bookRepository.DeleteAsync(id);
-        
+
         if (!deleted)
             throw new KeyNotFoundException("Book not found.");
+
+        // 🔥 Invalidate cache
+        _cache.Remove(BooksCacheKey);
     }
 
     private static void ValidateBookData(string title, string author, string isbn, int totalCopies, int availableCopies)
